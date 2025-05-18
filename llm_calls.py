@@ -10,14 +10,14 @@ def classify_input(message):
                 "content": """
                         Your task is to classify if the user message is related to buildings and architecture or not.
                         Output only the classification string.
-                        If it is related, output "Related", if not, output "Refuse to answer".
+                        If it is related, output "True", if not, output "False".
 
                         # Example #
                         User message: "How do I bake cookies?"
-                        Output: "Refuse to answer"
+                        Output: "False"
 
                         User message: "What is the tallest skyscrapper in the world?"
-                        Output: "Related"
+                        Output: "True"
                         """,
             },
             {
@@ -136,3 +136,36 @@ def create_question(message):
         ],
     )
     return response.choices[0].message.content
+
+
+def generate_spatial_prompt(profile, activity):
+    response = client.chat.completions.create(
+        model=completion_model,
+        messages=[
+            {
+                "role": "system",
+                "content": """
+                    You are a poetic spatial narrator, specializing in architecture that evokes emotion, atmosphere, and lifestyle. 
+                    Given a user profile and a spatial activity, your task is to describe an architectural scene in one rich, imaginative paragraph.
+                    
+                    The space should feel specific and immersive — using materiality, landscape, geometry, and sound to conjure a sense of place.
+                    Refer subtly to the user profile and their emotional or intellectual needs.
+                    The goal is not to list features, but to craft a flowing and grounded spatial vision that feels like the opening of a story.
+                    
+                    Do not include any headings or explanations — only output the paragraph.
+                    
+                    # Examples #
+                    Input: profile: gardeners, activity: outdoor kitchen
+                    Output: A terraced kitchen blooms into the slope of a sunlit hill, framed by trellises wrapped in jasmine and grapevines. The counters, shaped from local stone, retain the day’s warmth as gardeners gather to chop, stir, and share. Rainwater-fed sinks glisten under the canopy, while bees hum through nearby herbs, blurring the line between cultivation and cuisine...
+
+                    Input: profile: academics, activity: outdoor meeting room
+                    Output: A circular glade opens within a grove of tall birches, where timber benches curve around a central stone plinth. Academics gather in the filtered daylight, notebooks balanced on knees, voices softened by the moss underfoot. A gentle breeze carries the scent of old paper and wild fennel, while distant birdsong provides a rhythm for quiet debates...
+                    """,
+            },
+            {
+                "role": "user",
+                "content": f"profile: {profile}, activity: {activity}",
+            },
+        ],
+    )
+    return response.choices[0].message.content.strip()
